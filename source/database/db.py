@@ -55,11 +55,11 @@ def create_table_user(user_id):
             cursor.execute('''CREATE TABLE IF NOT EXISTS user (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 user_id BIGINT,
-                                shirina_mej_sm INTEGER,
-                                kol_sem_sht INTEGER,
-                                rasxod_sem INTEGER,
-                                ploshad_ga INTEGER,
-                                massa_1000 INTEGER,
+                                shirina_mej_sm REAL,
+                                kol_sem_sht REAL,
+                                rasxod_sem REAL,
+                                ploshad_ga REAL,
+                                massa_1000 REAL,
                                 status INTEGER,
                                 msg_id INTEGER)''')
             logging.info(f'[DB] таблица user создался | {db_path}users/{user_id}.db')
@@ -207,7 +207,7 @@ def get_shirina_mej_sm(user_id):
         logging.info(f'[DB] get_shirina_mej_sm | ID: {user_id}, shirina_mej_sm: {result}')
     except Exception as e:
         logging.error(f'[DB] get_shirina_mej_sm, Ошибка: {e}')
-    return result
+    return float(result)
 
 def set_kol_sem_sht(user_id, kol_sem_sht):
     try:
@@ -242,7 +242,7 @@ def get_kol_sem_sht(user_id):
         logging.info(f'[DB] get_kol_sem_sht | ID: {user_id}, kol_sem_sht: {result}')
     except Exception as e:
         logging.error(f'[DB] get_kol_sem_sht, Ошибка: {e}')
-    return result
+    return float(result)
 
 def set_massa_1000(user_id, massa_1000):
     try:
@@ -277,4 +277,114 @@ def get_massa_1000(user_id):
         logging.info(f'[DB] get_massa_1000 | ID: {user_id}, massa_1000: {result}')
     except Exception as e:
         logging.error(f'[DB] get_massa_1000, Ошибка: {e}')
+    return float(result)
+
+def set_rasxod_sem(user_id, rasxod_sem):
+    try:
+        # Подключаемся к базе данных
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # Изменяем статус пользователя
+        cursor.execute("UPDATE user SET rasxod_sem = ? WHERE user_id = ?", (rasxod_sem, user_id))
+        # Сохраняем изменения
+        conn.commit()
+        # Закрываем соединение
+        conn.close()
+        logging.info(f'[DB] set_rasxod_sem | ID: {user_id} | Внес данные {rasxod_sem}')
+    except Exception as e:
+        logging.error(f'[DB] set_rasxod_sem, Ошибка: {e}')
+
+def get_rasxod_sem(user_id):
+    result = None
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # получаем статус 
+        cursor.execute("SELECT rasxod_sem FROM user WHERE user_id=?", (user_id,))
+        raw = cursor.fetchone()
+        if raw:
+            result = raw[0]
+        else:
+            result = None
+        #print (status) #debug
+        conn.close()
+        logging.info(f'[DB] get_rasxod_sem | ID: {user_id}, rasxod_sem: {result}')
+    except Exception as e:
+        logging.error(f'[DB] get_rasxod_sem, Ошибка: {e}')
+    return float(result)
+
+def set_ploshad_ga(user_id, ploshad_ga):
+    try:
+        # Подключаемся к базе данных
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # Изменяем статус пользователя
+        cursor.execute("UPDATE user SET ploshad_ga = ? WHERE user_id = ?", (ploshad_ga, user_id))
+        # Сохраняем изменения
+        conn.commit()
+        # Закрываем соединение
+        conn.close()
+        logging.info(f'[DB] set_ploshad_ga | ID: {user_id} | Внес данные {ploshad_ga}')
+    except Exception as e:
+        logging.error(f'[DB] set_ploshad_ga, Ошибка: {e}')
+
+def get_ploshad_ga(user_id):
+    result = None
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # получаем статус 
+        cursor.execute("SELECT ploshad_ga FROM user WHERE user_id=?", (user_id,))
+        raw = cursor.fetchone()
+        if raw:
+            result = raw[0]
+        else:
+            result = None
+        #print (status) #debug
+        conn.close()
+        logging.info(f'[DB] get_ploshad_ga | ID: {user_id}, ploshad_ga: {result}')
+    except Exception as e:
+        logging.error(f'[DB] get_ploshad_ga, Ошибка: {e}')
+    return float(result)
+
+def get_method_2(user_id):
+    result = None
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # получаем статус 
+        cursor.execute("SELECT rasxod_sem, ploshad_ga, massa_1000 FROM user WHERE user_id=?", (user_id,))
+        raw = cursor.fetchone()
+        if raw:
+            result = raw
+        else:
+            result = None
+        #print (result) #debug
+        conn.close()
+        logging.info(f'[DB] get_method_2 | ID: {user_id}, method_2: {result}')
+    except Exception as e:
+        logging.error(f'[DB] get_method_2, Ошибка: {e}')
+    return result
+
+def get_method_3(user_id):
+    result = None
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # получаем статус 
+        cursor.execute("SELECT massa_1000, kol_sem_sht FROM user WHERE user_id=?", (user_id,))
+        raw = cursor.fetchone()
+        if raw:
+            result = raw
+        else:
+            result = None
+        #print (result) #debug
+        conn.close()
+        logging.info(f'[DB] get_method_3 | ID: {user_id}, method_3: {result}')
+    except Exception as e:
+        logging.error(f'[DB] get_method_3, Ошибка: {e}')
     return result
