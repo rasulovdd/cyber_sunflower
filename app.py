@@ -8,7 +8,7 @@ from time import sleep
 from source.keyboard import inline, reply
 from source.database import db
 from source.log import logging
-from source.utils import is_int
+from source.utils import *
 load_dotenv()
    
 #загружаем переменные из .env
@@ -72,9 +72,15 @@ def send_welcome(message):
     """Обрабатываем текстовые сообщения '/test' """
     user_id = message.from_user.id
     print (admins_id) #debug
-    if int(user_id) == int(admins_id):
-        msg_id=db.get_msg_id(user_id, 10)
-        print (msg_id)
+    # if int(user_id) == int(admins_id):
+    #     # msg_id=db.get_msg_id(user_id, 10)
+    #     # if msg_id:
+    #     #     print (msg_id)
+    #     user_text = message.text
+    #     if is_int(user_text):
+    #         result = text_to_float(user_text)
+    #         print (result)
+        
 
     
 
@@ -123,24 +129,27 @@ def handle_command(message):
             print ("Кнопка нажата в режиме method_3")
             
     elif status == 11:
-        print (user_id, "| method_1 | cтатус", status) #debug
-        if is_int(user_text):
-            db.set_shirina_mej_sm(user_id, user_text)
+        print (user_id, "| method_1 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_shirina_mej_sm(user_id, user_number)
             Bot.send_message(user_id, f"Ширина междурядий, <b>{user_text} см</b>", parse_mode="HTML")
             db.set_status(user_id,12)
             Bot.send_message(user_id, "Введите пожалуйста:\n<b>Количество семян на погонный метр, ШТ</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
         else:
-            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")    
+            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
     elif status == 12:
-        print (user_id, "| method_1 | cтатус", status) #debug
-        if is_int(user_text):
-            #db.set_kol_sem_sht(user_id, user_text)
+        print (user_id, "| method_1 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
             Bot.send_message(user_id, f"Количество семян на погонный метр, <b>{user_text} шт</b>", parse_mode="HTML")
             shirina_mej_sm = db.get_shirina_mej_sm(user_id)
-            result_1 = int(10000/int(shirina_mej_sm)/100*int(user_text)*10000)
-            Bot.send_message(user_id, f"Количество семян на гектар:\n✅ <b>{result_1} шт</b>", parse_mode="HTML")
-            result_2 = 100/int(user_text)
-            Bot.send_message(user_id, f"Расстояние между семенами:\n✅ <b>{result_2} см</b>", parse_mode="HTML")
+            result_1 = 10000/shirina_mej_sm/100*user_number*10000
+            Bot.send_message(user_id, f"Количество семян на гектар:\n✅ <b>{int(result_1)} шт</b>", parse_mode="HTML")
+            result_2 = 100/user_number
+            Bot.send_message(user_id, f"Расстояние между семенами:\n✅ <b>{round(result_2,2)} см</b>", parse_mode="HTML")
             db.set_status(user_id,0)
             Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
         else:
@@ -148,13 +157,66 @@ def handle_command(message):
 
 
     elif status == 21:
-        print (user_id, "| method_2 | cтатус", status) #debug
+        print (user_id, "| method_2 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_rasxod_sem(user_id, user_number)
+            Bot.send_message(user_id, f"Расход семян на поле, <b>{user_text} кг</b>", parse_mode="HTML")
+            db.set_status(user_id,22)
+            Bot.send_message(user_id, "Введите пожалуйста:\n<b>Площадь поля, ГА</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
+        else:
+            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")  
+
+    elif status == 22:
+        print (user_id, "| method_2 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_ploshad_ga(user_id, user_number)
+            Bot.send_message(user_id, f"Площадь поля, <b>{user_text} га</b>", parse_mode="HTML")
+            db.set_status(user_id,23)
+            Bot.send_message(user_id, "Введите пожалуйста:\n<b>Масса 1000 семянок, Г</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
+        else:
+            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")  
     
+    elif status == 23:
+        print (user_id, "| method_2 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_massa_1000(user_id, user_number)
+            Bot.send_message(user_id, f"Масса 1000 семянок, <b>{user_text} г</b>", parse_mode="HTML")
+            db.set_status(user_id,24)
+            Bot.send_message(user_id, "Введите пожалуйста:\n<b>Ширина междурядий, СМ</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
+        else:
+            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
+
+    elif status == 24:
+        print (user_id, "| method_2 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            Bot.send_message(user_id, f"Ширина междурядий, <b>{user_text} см</b>", parse_mode="HTML")
+            db.set_status(user_id,24)
+            Bot.send_message(user_id, "Введите пожалуйста:\n<b>Ширина междурядий, СМ</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
+            method = db.get_method_2(user_id)
+            
+            result = float(method[0])/float(method[1])*1000/float(method[2])*1000/(10000/user_number*100)
+
+            Bot.send_message(user_id, f"Количество семян на погонный метр:\n✅ <b>{round(result,2)} шт</b>", parse_mode="HTML")
+            db.set_status(user_id,0)
+            Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
+        else:
+            Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
+
+
     elif status == 31:
-        print (user_id, "| method_3 | cтатус", status) #debug
-        #я тут
-        if is_int(user_text):
-            db.set_massa_1000(user_id, user_text)
+        print (user_id, "| method_3 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_massa_1000(user_id, user_number)
             Bot.send_message(user_id, f"Масса 1000 семянок, <b>{user_text} г</b>", parse_mode="HTML")
             db.set_status(user_id,32)
             Bot.send_message(user_id, "Введите пожалуйста:\n<b>Количество семян на погонный метр, ШТ</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
@@ -162,9 +224,11 @@ def handle_command(message):
             Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")  
 
     elif status == 32:
-        print (user_id, "| method_3 | cтатус", status) #debug
-        if is_int(user_text):
-            db.set_kol_sem_sht(user_id, user_text)
+        print (user_id, "| method_3 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
+            db.set_kol_sem_sht(user_id, user_number)
             Bot.send_message(user_id, f"Количество семян на погонный метр, <b>{user_text} шт</b>", parse_mode="HTML")
             db.set_status(user_id,33)
             Bot.send_message(user_id, "Введите пожалуйста:\n<b>Ширина междурядий, СМ</b>\n(данные нужно вводить в цифрах...)", parse_mode="HTML")
@@ -172,19 +236,26 @@ def handle_command(message):
             Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")  
     
     elif status == 33:
-        print (user_id, "| method_3 | cтатус", status) #debug
-        if is_int(user_text):
-            db.set_kol_sem_sht(user_id, user_text)
+        print (user_id, "| method_3 | cтатус", status, "|", user_text) #debug
+        # if is_int(user_text):
+        if check_number(user_text) != False:
+            user_number = check_number(user_text)
             Bot.send_message(user_id, f"Ширина междурядий, <b>{user_text} см</b>", parse_mode="HTML")
-            massa_1000 = db.get_massa_1000(user_id)
-            kol_sem_sht = db.get_kol_sem_sht(user_id)
-            result = int(massa_1000)*int(kol_sem_sht)*(10000/int(user_text)*100)/1000/1000
-            Bot.send_message(user_id, f"Расход семяк:\n✅ <b>{result} кг</b>", parse_mode="HTML")
+            method = db.get_method_3(user_id)
+
+            result = float(method[0])*float(method[1])*(10000/user_number*100)/1000/1000
+
+            Bot.send_message(user_id, f"Расход семян:\n✅ <b>{round(result,3)} кг</b>", parse_mode="HTML")
             db.set_status(user_id,0)
             Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
         else:
             Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
-
+    else:
+        #print (user_text)
+        if int(user_id) == int(admins_id):
+            if check_number(user_text) != False:
+                user_number = check_number(user_text)
+                print (user_number)
 
 @Bot.message_handler(commands=['id'])
 def send_id(message):
