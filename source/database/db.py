@@ -88,6 +88,26 @@ def is_registered(user_id):
         logging.error(f'[DB] is_registered, Ошибка: {e}')
     return user_info
 
+def is_allowed(user_id):
+    allowed = None
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}main_db.db')
+        cursor = conn.cursor()
+        # Проверка наличия user_id в таблице users
+        cursor.execute("SELECT * FROM users WHERE user_id=? AND status = 1 ", (user_id,))
+        result = cursor.fetchone()
+        if result:
+            allowed = result[0]
+        else:
+            allowed = None
+        #print (allowed) #debug
+        conn.close()
+        logging.info('[DB] is_allowed | Информация получена')
+    except Exception as e:
+        logging.error(f'[DB] is_allowed, Ошибка: {e}')
+    return allowed
+
 def set_status(user_id, status):
     try:
         # Подключаемся к базе данных
@@ -102,6 +122,21 @@ def set_status(user_id, status):
         logging.info(f'[DB] set_status | status {user_id} изменен на {status}')
     except Exception as e:
         logging.error(f'[DB] set_status, Ошибка: {e}')
+
+def user_allow(user_id, status):
+    try:
+        # Подключаемся к базе данных
+        conn = sqlite3.connect(f'{db_path}main_db.db')
+        cursor = conn.cursor()
+        # Изменяем статус пользователя
+        cursor.execute("UPDATE users SET status = ? WHERE user_id = ?", (status,user_id))
+        # Сохраняем изменения
+        conn.commit()
+        # Закрываем соединение
+        conn.close()
+        logging.info(f'[DB] user_allow | status {user_id} изменен на {status}')
+    except Exception as e:
+        logging.error(f'[DB] user_allow, Ошибка: {e}')
 
 def get_status(user_id):
     status = None

@@ -26,9 +26,18 @@ def button(key_type):
     elif key_type == "yes_no":
         markup.row_width = 2
         markup.add(
-            InlineKeyboardButton("Да", callback_data="cb_yes"),
-            InlineKeyboardButton("Нет", callback_data="cb_no")
+            InlineKeyboardButton("✅ Да", callback_data="cb_yes"),
+            InlineKeyboardButton("❌ Нет", callback_data="cb_no")
         )
 
     return markup
 
+def yes_no(user_id):
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 2
+    markup.add(
+        InlineKeyboardButton("✅ Да", callback_data=f"yes_{user_id}"),
+        InlineKeyboardButton("❌ Нет", callback_data=f"no_{user_id}")
+    )
+
+    return markup
