@@ -14,8 +14,6 @@ load_dotenv()
 #загружаем переменные из .env
 api_tokken = os.getenv('api_tokken')
 app_debug = os.getenv('debug_on')
-#users_id_all = os.getenv('users_id')
-#users_id = users_id_all.split(",")
 my_host = os.getenv('my_host')
 my_port = os.getenv('my_port')
 bot_tokken = os.getenv('bot_tokken')
