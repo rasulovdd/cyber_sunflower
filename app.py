@@ -140,8 +140,13 @@ def main_menyu(user_id):
 @Bot.message_handler(content_types=['text'], chat_types=['private'])
 def handle_command(message):
     user_id = message.from_user.id
-    
     user_text = message.text 
+    if user_text == "/id":
+        if message.chat.type != 'private':
+            Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
+        else:
+            Bot.send_message(message.from_user.id, f"Ваш ID: {message.from_user.id}")
+    
     if db.is_allowed(user_id):
         status=db.get_status(user_id)
 
@@ -158,7 +163,7 @@ def handle_command(message):
                 print ("Кнопка нажата в режиме method_2")
             elif status == 31:
                 print ("Кнопка нажата в режиме method_3")
-                
+
         elif status == 11:
             print (user_id, "| method_1 | cтатус", status, "|", user_text) #debug
             # if is_int(user_text):
@@ -293,6 +298,7 @@ def handle_command(message):
 @Bot.message_handler(commands=['id'])
 def send_id(message):
     """ Обрабатываем текстовые сообщения '/id'. """
+    print ("id")
     if message.chat.type != 'private':
         Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
     else:
@@ -379,7 +385,7 @@ while True:
         #создаем таблицу users
         db.create_table_user("")
         #Непрекращающаяся прослушка наших чатов
-        Bot.polling(none_stop=True, interval=0,  timeout=60) 
+        Bot.polling(none_stop=True, interval=0,  timeout=60, skip_pending=True) 
     except Exception as my_bot_error:
         logging.info(f'[BOT] startup, Ошибка: {my_bot_error}')
         logging.info(f'[BOT] startup, Ждем 10 секунд ........')
