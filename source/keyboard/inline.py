@@ -32,12 +32,22 @@ def button(key_type):
 
     return markup
 
-def yes_no(user_id):
+def yes_no(user_id,user_name):
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
     markup.add(
-        InlineKeyboardButton("✅ Да", callback_data=f"yes_{user_id}"),
-        InlineKeyboardButton("❌ Нет", callback_data=f"no_{user_id}")
+        InlineKeyboardButton("✅ Да", callback_data=f"yes_{user_id}_{user_name}"),
+        InlineKeyboardButton("❌ Нет", callback_data=f"no_{user_id}_{user_name}")
     )
+
+    return markup
+
+def ban(user_id, status):
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 1
+    if status == 1:
+        markup.add(InlineKeyboardButton("❌ Забанить", callback_data=f"ban_yes_{user_id}"))
+    else:
+        markup.add(InlineKeyboardButton("✅ Разбанить", callback_data=f"ban_no_{user_id}"))
 
     return markup

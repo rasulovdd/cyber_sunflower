@@ -40,53 +40,23 @@ def send_welcome(message):
     """Обрабатываем текстовые сообщения '/start' """
     user_id = message.from_user.id
     full_name = message.from_user.full_name
-    
-    # if db.is_registered(user_id):
-    #     Bot.send_message(user_id, "Привет 🤝\nРад видеть снова\nВыберите функцию 👇")
-    #     #показываем меню
-    #     main_menyu(user_id)
-    #     #обнуляем статус пользователя
-    #     db.set_status(user_id,0)
-    # else:
-    #     db.add_userid_main_db(user_id) #добавить user_id в общию базу
-    #     #создаем таблицу users
-    #     db.create_table_user(user_id)
-    #     #добавляем туда id пользователя 
-    #     db.add_userid(user_id) #добавить user_id в персональную базу
-    #     Bot.send_message(user_id, "Привет 🤝\nВыберите функцию 👇", reply_markup=reply.keyboard("MAIN"))
-    #     #показываем меню
-    #     main_menyu(user_id)
-    #     #уведомляем админа
-    #     Bot.send_message(admins_id, 
-    #                      f'✅ Новый пользователь\n<a href="tg://user?id={user_id}">{full_name}</a>', 
-    #                      parse_mode='HTML')
 
     if db.is_allowed(user_id):
-        Bot.send_message(user_id, "Привет 🤝\nРад видеть снова\nВыберите функцию 👇")
+        if int(user_id) == int(admins_id):
+            Bot.send_message(user_id, "Привет 🤝\nРад видеть снова\nВыберите функцию 👇", reply_markup=reply.keyboard("ADMIN"))
+        else:
+            Bot.send_message(user_id, "Привет 🤝\nРад видеть снова\nВыберите функцию 👇", reply_markup=reply.keyboard("MAIN"))
         #показываем меню
         main_menyu(user_id)
         #обнуляем статус пользователя
         db.set_status(user_id,0)
     else:
-        Bot.send_message(user_id, "Привет 🤝\nУ тебя нет доступа к этому боту!\nОбратись к 👇\n@LavDePo")
+        Bot.send_message(user_id, "Привет 🤝\nУ тебя нет доступа к этому боту!\nОбратись к 👇\n@LavDePo", reply_markup=reply.keyboard("DONE"))
          #уведомляем админа
         Bot.send_message(admins_id, 
                          f'✅ Новый пользователь\n<a href="tg://user?id={user_id}">{full_name}</a>\nРазрешить доступ?', 
                          parse_mode='HTML',
-                         reply_markup=inline.yes_no(user_id))
-
-        # db.add_userid_main_db(user_id) #добавить user_id в общию базу
-        # #создаем таблицу users
-        # db.create_table_user(user_id)
-        # #добавляем туда id пользователя 
-        # db.add_userid(user_id) #добавить user_id в персональную базу
-        # Bot.send_message(user_id, "Привет 🤝\nВыберите функцию 👇", reply_markup=reply.keyboard("MAIN"))
-        # #показываем меню
-        # main_menyu(user_id)
-        # #уведомляем админа
-        # Bot.send_message(admins_id, 
-        #                  f'✅ Новый пользователь\n<a href="tg://user?id={user_id}">{full_name}</a>', 
-        #                  parse_mode='HTML')
+                         reply_markup=inline.yes_no(user_id,full_name))
 
     if app_debug == "1":
         logging.info(f'[BOT] [UserID: {user_id}] Сообщение отправлено')
@@ -110,7 +80,14 @@ def send_welcome(message):
     #         result = text_to_float(user_text)
     #         print (result)
         
-
+@Bot.message_handler(commands=['id'])
+def send_id(message):
+    """ Обрабатываем текстовые сообщения '/id'. """
+    #print ("id")
+    if message.chat.type != 'private':
+        Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
+    else:
+        Bot.send_message(message.from_user.id, f"Ваш ID: {message.from_user.id}")
 
 def main_menyu(user_id):
     msg_id = db.get_msg_id(user_id, 10)
@@ -141,16 +118,17 @@ def main_menyu(user_id):
 def handle_command(message):
     user_id = message.from_user.id
     user_text = message.text 
-    if user_text == "/id":
-        if message.chat.type != 'private':
-            Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
-        else:
-            Bot.send_message(message.from_user.id, f"Ваш ID: {message.from_user.id}")
+    # if user_text == "/id":
+    #     if message.chat.type != 'private':
+    #         Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
+    #     else:
+    #         Bot.send_message(message.from_user.id, f"Ваш ID: {message.from_user.id}")
     
     if db.is_allowed(user_id):
+
         status=db.get_status(user_id)
 
-        if user_text == "🏠 Главное меню":
+        if user_text == "🏠 Главное меню" or user_text == "🌼 Расчеты":
             #удаляем сообщение пользователя 
             Bot.delete_message(user_id, message.message_id)
             #показываем меню 
@@ -187,7 +165,10 @@ def handle_command(message):
                 result_2 = 100/user_number
                 Bot.send_message(user_id, f"Расстояние между семенами:\n✅ <b>{round(result_2,2)} см</b>", parse_mode="HTML")
                 db.set_status(user_id,0)
-                Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
+                if int(user_id) == int(admins_id):
+                    Bot.send_message(user_id, "Ваши возможности 👇", reply_markup=reply.keyboard("ADMIN"))
+                else:
+                    Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
             else:
                 Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)")            
 
@@ -242,7 +223,10 @@ def handle_command(message):
 
                 Bot.send_message(user_id, f"Количество семян на погонный метр:\n✅ <b>{round(result,2)} шт</b>", parse_mode="HTML")
                 db.set_status(user_id,0)
-                Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
+                if int(user_id) == int(admins_id):
+                    Bot.send_message(user_id, "Ваши возможности 👇", reply_markup=reply.keyboard("ADMIN"))
+                else:
+                    Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
             else:
                 Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
 
@@ -283,7 +267,10 @@ def handle_command(message):
 
                 Bot.send_message(user_id, f"Расход семян:\n✅ <b>{round(result,3)} кг</b>", parse_mode="HTML")
                 db.set_status(user_id,0)
-                Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
+                if int(user_id) == int(admins_id):
+                    Bot.send_message(user_id, "Ваши возможности 👇", reply_markup=reply.keyboard("ADMIN"))
+                else:
+                    Bot.send_message(user_id, "Нажмите на кнопку и я покажу Вам меню 👇", reply_markup=reply.keyboard("MAIN"))
             else:
                 Bot.send_message(user_id, "Ввидите пожалуйста данные в цифрах (1234567890)") 
         else:
@@ -293,17 +280,21 @@ def handle_command(message):
                     user_number = check_number(user_text)
                     print (user_number)
     else:
-        Bot.send_message(user_id, "У тебя нет доступа к этому боту!\nОбратись к 👇\n@LavDePo")
+        Bot.send_message(user_id, "У тебя нет доступа к этому боту!\nОбратись к 👇\n@LavDePo", reply_markup=reply.keyboard("DONE"))
 
-@Bot.message_handler(commands=['id'])
-def send_id(message):
-    """ Обрабатываем текстовые сообщения '/id'. """
-    print ("id")
-    if message.chat.type != 'private':
-        Bot.send_message(message.chat.id, f"ID чата: {message.chat.id}")
-    else:
-        Bot.send_message(message.from_user.id, f"Ваш ID: {message.from_user.id}")
-
+    if int(user_id) == int(admins_id):
+        if user_text == "📖 Список сотрудников":
+            #удаляем сообщение пользователя 
+            # Bot.delete_message(user_id, message.message_id)
+            #показываем список сотрудников
+            all_users = db.get_all_users()
+            # я тут <a href="tg://user?id={user_id}">{full_name}</a>
+            if all_users:
+                #print (all_users) #debug
+                for user in all_users:
+                    Bot.send_message(user_id, 
+                                     f"{'✅' if user[2] == 1 else '❌'} <a href='tg://user?id={user[0]}'>{user[1]}</a>\nID: <code>{user[0]}</code>", 
+                                     parse_mode="HTML", reply_markup=inline.ban(user[0],user[2]))
 
 @Bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -347,24 +338,26 @@ def callback_query(call):
             )
     elif call.data.split("_")[0] == "yes":
         user_allow = call.data.split("_")[1]
+        user_name = call.data.split("_")[2]
         Bot.edit_message_text(
                 chat_id=user_id,
                 message_id=call.message.id,
                 text=f"{call.message.text}\n🤝 Принял\n✅ Доступ выдан"
             )
-        db.add_userid_main_db(user_allow) #добавить user_id в общию базу
+        db.add_userid_main_db(user_allow,user_name) #добавить user_id в общию базу
         #создаем таблицу user
         db.create_table_user(user_allow)
         #добавляем туда id пользователя 
         db.add_userid(user_allow) #добавить user_id в персональную базу
         #даем доступ
         db.user_allow(user_allow,1)
-        Bot.send_message(user_allow, "✅ Доступ получен, Выберите функцию 👇", reply_markup=reply.keyboard("MAIN"))
+        if int(user_allow) == int(admins_id):
+            Bot.send_message(user_allow, "✅ Админский Доступ получен, Выберите функцию 👇", reply_markup=reply.keyboard("ADMIN"))
+        else:
+            Bot.send_message(user_allow, "✅ Доступ получен, Выберите функцию 👇", reply_markup=reply.keyboard("MAIN"))
         #показываем меню
         main_menyu(user_allow)
-        
-        
-
+    
     elif call.data.split("_")[0] == "no":
         user_allow = call.data.split("_")[1]
         Bot.edit_message_text(
@@ -375,6 +368,30 @@ def callback_query(call):
         #блокируем доступ
         db.add_userid_main_db(user_allow) #добавить user_id в общию базу
         Bot.send_message(user_allow, "❌ Доступ неполучен!", reply_markup=reply.keyboard("DONE"))
+    
+    elif call.data.split("_")[0] == "ban":
+        status = call.data.split("_")[1]
+        ban_user_id = call.data.split("_")[2]
+        if status == "yes":
+            Bot.edit_message_text(
+                    chat_id=user_id,
+                    message_id=call.message.id,
+                    text=f"{call.message.text}\n❌ Забанил"
+                )
+            #бан
+            db.set_ban(ban_user_id,0)
+            #пишем пользователю
+            Bot.send_message(ban_user_id, "❌ Доступ заблокирован!", reply_markup=reply.keyboard("DONE"))
+        else:
+            Bot.edit_message_text(
+                    chat_id=user_id,
+                    message_id=call.message.id,
+                    text=f"{call.message.text}\n✅ Разбанил"
+                )
+            #разбан
+            db.set_ban(ban_user_id,1)
+            #пишем пользователю
+            Bot.send_message(ban_user_id, "✅ Доступ получен!", reply_markup=reply.keyboard("MAIN"))
 
 # Запуск APP
 while True:

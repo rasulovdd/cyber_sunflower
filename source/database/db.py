@@ -6,30 +6,6 @@ from source.log import logging
 db_path = "source/database/"
 
 
-def add_userid(user_id):
-    try:
-        # Подключение к базе данных SQLite
-        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
-        cursor = conn.cursor()
-        # Запись userid в базу данных SQLite
-        cursor.execute("INSERT INTO user (user_id, status) VALUES (?,?)", (user_id,0))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        logging.error(f'[DB] add_userid, Ошибка: {e}')
-
-def add_userid_main_db(user_id):
-    try:
-        # Подключение к базе данных SQLite
-        conn = sqlite3.connect(f'{db_path}main_db.db')
-        cursor = conn.cursor()
-        # Запись userid в базу данных SQLite
-        cursor.execute("INSERT INTO users (user_id, status) VALUES (?,?)", (user_id,0))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        logging.error(f'[DB] add_userid_main_db, Ошибка: {e}')
-
 def create_table_user(user_id):
     if user_id == "":
         try:
@@ -40,6 +16,7 @@ def create_table_user(user_id):
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 user_id BIGINT,
+                                user_name TEXT,
                                 status INTEGER)''')
             logging.info(f'[DB] таблица users создался | {db_path}main_db.db')
             conn.commit()
@@ -67,7 +44,32 @@ def create_table_user(user_id):
             conn.close()
         except Exception as my_bot_error:
             logging.error(f'[DB] create_table_user, Ошибка: {my_bot_error}')
-    
+
+
+def add_userid(user_id):
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}users/{user_id}.db')
+        cursor = conn.cursor()
+        # Запись userid в базу данных SQLite
+        cursor.execute("INSERT INTO user (user_id, status) VALUES (?,?)", (user_id,0))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logging.error(f'[DB] add_userid, Ошибка: {e}')
+
+def add_userid_main_db(user_id, user_name):
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}main_db.db')
+        cursor = conn.cursor()
+        # Запись userid в базу данных SQLite
+        cursor.execute("INSERT INTO users (user_id, user_name, status) VALUES (?,?,?)", (user_id,user_name,0))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logging.error(f'[DB] add_userid_main_db, Ошибка: {e}')
+
 def is_registered(user_id):
     user_info = None
     try:
@@ -423,3 +425,41 @@ def get_method_3(user_id):
     except Exception as e:
         logging.error(f'[DB] get_method_3, Ошибка: {e}')
     return result
+
+def get_all_users():
+    all_users = []
+    try:
+        # Подключение к базе данных SQLite
+        conn = sqlite3.connect(f'{db_path}main_db.db')
+        cursor = conn.cursor()
+        # выполняем запрос 
+        cursor.execute("SELECT user_id, user_name, status FROM users")
+        # Получение результатов
+        rows = cursor.fetchall()
+        if rows:
+            # Вывод результатов
+            for row in rows:
+                all_users.append(row)
+        else:
+            all_users = None
+        conn.commit()
+        conn.close()
+        logging.info('[DB] all_users | Информация получена')
+    except Exception as e:
+        logging.error(f'[DB] all_users, Ошибка: {e}')
+    return all_users
+
+def set_ban(user_id, status):
+    try:
+        # Подключаемся к базе данных
+        conn = sqlite3.connect(f'{db_path}main_db.db')
+        cursor = conn.cursor()
+        # Изменяем статус пользователя
+        cursor.execute("UPDATE users SET status = ? WHERE user_id = ?", (status, user_id))
+        # Сохраняем изменения
+        conn.commit()
+        # Закрываем соединение
+        conn.close()
+        logging.info(f'[DB] set_ban | ID: {user_id} | Бан: {status}')
+    except Exception as e:
+        logging.error(f'[DB] set_ban, Ошибка: {e}')
