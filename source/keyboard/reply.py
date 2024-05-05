@@ -9,4 +9,7 @@ def keyboard(key_type):
         markup.add(KeyboardButton("🏠 Главное меню"))
     elif key_type == "DONE":
         markup = ReplyKeyboardRemove()
+    elif key_type == "ADMIN":
+        markup.add(KeyboardButton("🌼 Расчеты"))
+        markup.add(KeyboardButton("📖 Список сотрудников"))
     return markup
