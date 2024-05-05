@@ -14,15 +14,8 @@ load_dotenv()
 #загружаем переменные из .env
 api_tokken = os.getenv('api_tokken')
 app_debug = os.getenv('debug_on')
-my_host = os.getenv('my_host')
-my_port = os.getenv('my_port')
-bot_tokken = os.getenv('bot_tokken')
 admins_id = os.getenv('admins_id')
-
 bot_tokken = os.getenv('bot_tokken') #загружаем токкен бота из файла
-Bot = telebot.TeleBot(bot_tokken) #назначаем токкен в телебот
-
-# -----------------------------------------------------------------
 Bot = telebot.TeleBot(bot_tokken) #назначаем токкен в телебот
 Bot.delete_my_commands(scope=None, language_code=None)
 Bot.set_my_commands(
