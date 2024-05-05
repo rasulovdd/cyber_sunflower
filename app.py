@@ -1,7 +1,6 @@
 import telebot
 #from telebot import types
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
-from requests import get
+#from requests import get
 from dotenv import load_dotenv
 import os
 from time import sleep
@@ -278,7 +277,7 @@ def handle_command(message):
     if int(user_id) == int(admins_id):
         if user_text == "📖 Список сотрудников":
             #удаляем сообщение пользователя 
-            # Bot.delete_message(user_id, message.message_id)
+            Bot.delete_message(user_id, message.message_id)
             #показываем список сотрудников
             all_users = db.get_all_users()
             # я тут <a href="tg://user?id={user_id}">{full_name}</a>
