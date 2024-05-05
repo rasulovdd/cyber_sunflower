@@ -1,7 +1,6 @@
 import telebot
 #from telebot import types
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
-from requests import get
+#from requests import get
 from dotenv import load_dotenv
 import os
 from time import sleep
@@ -14,15 +13,8 @@ load_dotenv()
 #загружаем переменные из .env
 api_tokken = os.getenv('api_tokken')
 app_debug = os.getenv('debug_on')
-my_host = os.getenv('my_host')
-my_port = os.getenv('my_port')
-bot_tokken = os.getenv('bot_tokken')
 admins_id = os.getenv('admins_id')
-
 bot_tokken = os.getenv('bot_tokken') #загружаем токкен бота из файла
-Bot = telebot.TeleBot(bot_tokken) #назначаем токкен в телебот
-
-# -----------------------------------------------------------------
 Bot = telebot.TeleBot(bot_tokken) #назначаем токкен в телебот
 Bot.delete_my_commands(scope=None, language_code=None)
 Bot.set_my_commands(
@@ -285,7 +277,7 @@ def handle_command(message):
     if int(user_id) == int(admins_id):
         if user_text == "📖 Список сотрудников":
             #удаляем сообщение пользователя 
-            # Bot.delete_message(user_id, message.message_id)
+            Bot.delete_message(user_id, message.message_id)
             #показываем список сотрудников
             all_users = db.get_all_users()
             # я тут <a href="tg://user?id={user_id}">{full_name}</a>
